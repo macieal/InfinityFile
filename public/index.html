@@ -1,61 +1,54 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>InfinityFiles</title>
-  <link rel="stylesheet" href="style.css">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>InfinityFiles</title>
 </head>
 <body>
-  <h1>InfinityFiles</h1>
-  <p style="color:red;font-weight:bold">⚠️ Os arquivos enviados (vídeos, fotos, etc) são temporários e serão apagados automaticamente após 24 horas.</p>
+<h1>InfinityFiles</h1>
+<p style="color:red;font-weight:bold">⚠️ Os arquivos enviados são temporários e serão apagados após 24h.</p>
 
-  <form id="uploadForm">
-    <input type="file" id="fileInput" name="file" required>
-    <input type="text" id="caption" name="caption" placeholder="Legenda (opcional)">
-    <button>Enviar</button>
-  </form>
 
-  <h2>Feed</h2>
-  <div id="posts"></div>
+<form id="uploadForm">
+<input type="file" id="fileInput" name="file" required>
+<button>Enviar</button>
+</form>
+
+
+<h2>Arquivos</h2>
+<div id="posts"></div>
+
 
 <script>
 async function load() {
-  const r = await fetch('/api/posts');
-  const posts = await r.json();
-  const box = document.getElementById('posts');
-  box.innerHTML = '';
+const r = await fetch('/api/posts');
+const posts = await r.json();
+const box = document.getElementById('posts');
+box.innerHTML = '';
 
-  posts.forEach(p => {
-    const el = document.createElement('div');
 
-    if (p.mimetype.startsWith('image/')) {
-      el.innerHTML = `<img src="/uploads/${p.filename}" style="max-width:200px">`;
-    } else if (p.mimetype.startsWith('video/')) {
-      el.innerHTML = `<video controls src="/uploads/${p.filename}" style="max-width:200px"></video>`;
-    } else if (p.mimetype.startsWith('audio/')) {
-      el.innerHTML = `<audio controls src="/uploads/${p.filename}"></audio>`;
-    }
-
-    if (p.caption) el.innerHTML += `<p>${p.caption}</p>`;
-
-    box.appendChild(el);
-  });
+posts.forEach(p => {
+const el = document.createElement('div');
+el.innerHTML = `<a href="/uploads/${p.filename}" target="_blank">${p.filename}</a>`;
+box.appendChild(el);
+});
 }
 
+
 uploadForm.onsubmit = async (e) => {
-  e.preventDefault();
-  const fd = new FormData();
-  fd.append('file', fileInput.files[0]);
-  fd.append('caption', caption.value);
-  await fetch('/api/upload', { method:'POST', body:fd });
-  fileInput.value = '';
-  caption.value = '';
-  load();
+e.preventDefault();
+const fd = new FormData();
+fd.append('file', fileInput.files[0]);
+await fetch('/api/upload', { method:'POST', body:fd });
+fileInput.value = '';
+load();
 };
+
 
 load();
 </script>
+
 
 </body>
 </html>
